@@ -60,12 +60,15 @@ async function abrirDetalheAluno(alunoId, nomeAluno) {
   } else {
     palavrasSnap.docs.forEach((doc) => {
       const p = doc.data();
+      const frases = p.frasesExemplo && p.frasesExemplo.length > 0
+        ? p.frasesExemplo.map((f) => `<div class="frase-exemplo">"${f}"</div>`).join("")
+        : "";
       const cartao = document.createElement("div");
       cartao.className = "cartao-palavra";
       cartao.innerHTML = `
         <div class="palavra-en">${p.palavraEn}</div>
         <div class="palavra-pt">${p.traducaoPt}</div>
-        ${p.fraseExemplo ? `<div class="frase-exemplo">"${p.fraseExemplo}"</div>` : ""}
+        ${frases}
       `;
       grade.appendChild(cartao);
     });
@@ -95,7 +98,7 @@ function carregarMensagensEnviadas(alunoId) {
         const data = m.criadoEm ? m.criadoEm.toDate().toLocaleDateString("pt-BR") : "";
         const div = document.createElement("div");
         div.className = "mensagem-item";
-        div.innerHTML = `${m.texto}<span class="data-msg">${data}</span>`;
+        div.innerHTML = `${m.texto}<br><span class="data-msg">${data}</span>`;
         container.appendChild(div);
       });
     });
