@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meu Dicionário — Dicionário</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <nav class="indice-letras">
+    <div class="marca">Aa</div>
+    <div id="indice-letras-lista"></div>
+  </nav>
+
+  <main class="conteudo">
+    <div class="topo-app">
+      <div class="saudacao">
+        <div class="eyebrow">SEU VOCABULÁRIO</div>
+        <h1 id="nome-usuario">Olá!</h1>
+      </div>
+      <button class="btn btn-secundario" onclick="sair()">Sair</button>
+    </div>
+
+    <div id="painel-mensagens" class="oculto" style="margin-bottom:2rem;">
+      <h3 style="font-size:0.95rem;">Recados do professor</h3>
+      <div id="lista-mensagens"></div>
+    </div>
+
+    <form class="formulario-palavra" onsubmit="event.preventDefault(); adicionarPalavra(inputPalavraEn.value, inputPalavraPt.value);">
+      <input type="text" id="input-palavra-en" placeholder="Palavra em inglês (ex: apple)" required>
+      <input type="text" id="input-palavra-pt" placeholder="Tradução (ex: maçã)" required>
+      <button type="submit" class="btn btn-primario">Adicionar</button>
+    </form>
+    <p class="status-msg" id="status-palavra"></p>
+
+    <div class="grade-cartoes" id="grade-cartoes"></div>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dicionario.js"></script>
+</body>
+</html>
