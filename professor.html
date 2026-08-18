@@ -7,12 +7,10 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
 <div class="app-shell">
   <nav class="indice-letras">
     <div class="marca">Pr</div>
   </nav>
-
   <main class="conteudo">
     <div class="topo-app">
       <div class="saudacao">
@@ -21,7 +19,6 @@
       </div>
       <button class="btn btn-secundario" onclick="sair()">Sair</button>
     </div>
-
     <div class="codigo-professor">
       Seu código: <strong id="codigo-professor">...</strong>
       <button class="btn btn-secundario" style="padding:0.3em 0.8em; font-size:0.8rem;" onclick="copiarCodigo()">Copiar</button>
@@ -30,28 +27,22 @@
     <p style="color:var(--ink-soft); font-size:0.9rem; margin-top:-1rem; margin-bottom:1.6rem;">
       Compartilhe esse código com seus alunos — eles usam ele para vincular a conta ao seu perfil.
     </p>
-
     <h2 style="font-size:1.1rem;">Seus alunos</h2>
     <div class="lista-alunos" id="lista-alunos"></div>
-
     <div class="painel-aluno-detalhe oculto" id="painel-aluno-detalhe">
       <h2 id="nome-aluno-detalhe">Aluno</h2>
-
       <h3 style="font-size:0.95rem;">Vocabulário</h3>
       <div class="grade-cartoes" id="grade-palavras-aluno" style="margin-bottom:1.6rem;"></div>
-
       <h3 style="font-size:0.95rem;">Deixar recado ou dica de estudo</h3>
       <div class="caixa-mensagem" style="margin-bottom:1rem;">
         <textarea id="input-mensagem" placeholder="Ex: Revise os phrasal verbs desta semana!"></textarea>
-        <button class="btn btn-primario" style="margin-top:0.6em;" onclick="enviarMensagem(inputMensagem.value)">Enviar recado</button>
+        <button class="btn btn-primario" style="margin-top:0.6em;" onclick="enviarMensagem(document.getElementById('input-mensagem').value)">Enviar recado</button>
       </div>
-
       <h3 style="font-size:0.95rem;">Recados enviados</h3>
       <div id="lista-mensagens-enviadas"></div>
     </div>
   </main>
 </div>
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
