@@ -2,15 +2,16 @@
 // DICIONÁRIO DO ALUNO
 // ============================================================
 
-let letraSelecionada = "TODAS";
+let letraSelecionada = "INICIO";
 let cacheDePalavras = [];
+let nomeDoAlunoAtual = "";
 
 exigirLogin("aluno");
 
 auth.onAuthStateChanged(async (user) => {
   if (!user) return;
   const perfil = await db.collection("usuarios").doc(user.uid).get();
-  document.getElementById("nome-usuario").textContent = perfil.data().nome;
+  nomeDoAlunoAtual = perfil.data().nome;
   carregarMensagensDoProfessor(user.uid);
   escutarPalavras(user.uid);
 });
@@ -22,11 +23,11 @@ function escutarPalavras(uid) {
     .onSnapshot((snapshot) => {
       cacheDePalavras = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
       montarIndiceLetras();
-      renderizarPalavras();
+      renderizarTela();
     });
 }
 
-// Monta as abas de A-Z no menu lateral, marcando quais têm palavras
+// Monta as abas do menu lateral: "Início" + A-Z, marcando quais letras têm palavras
 function montarIndiceLetras() {
   const letrasComPalavras = new Set(
     cacheDePalavras.map((p) => p.palavraEn[0].toUpperCase())
@@ -34,12 +35,12 @@ function montarIndiceLetras() {
   const container = document.getElementById("indice-letras-lista");
   container.innerHTML = "";
 
-  const todas = document.createElement("button");
-  todas.className = "letra-tab" + (letraSelecionada === "TODAS" ? " ativa" : "");
-  todas.textContent = "•";
-  todas.title = "Todas";
-  todas.onclick = () => { letraSelecionada = "TODAS"; montarIndiceLetras(); renderizarPalavras(); };
-  container.appendChild(todas);
+  const inicio = document.createElement("button");
+  inicio.className = "letra-tab" + (letraSelecionada === "INICIO" ? " ativa" : "");
+  inicio.textContent = "🏠";
+  inicio.title = "Início";
+  inicio.onclick = () => { letraSelecionada = "INICIO"; montarIndiceLetras(); renderizarTela(); };
+  container.appendChild(inicio);
 
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach((letra) => {
     const btn = document.createElement("button");
@@ -48,13 +49,31 @@ function montarIndiceLetras() {
     if (letrasComPalavras.has(letra)) classe += " tem-palavras";
     btn.className = classe;
     btn.textContent = letra;
-    btn.onclick = () => { letraSelecionada = letra; montarIndiceLetras(); renderizarPalavras(); };
+    btn.onclick = () => { letraSelecionada = letra; montarIndiceLetras(); renderizarTela(); };
     container.appendChild(btn);
   });
 }
 
+// Decide o que mostrar no topo e no corpo da página, dependendo da tela ativa
+function renderizarTela() {
+  const painelMensagens = document.getElementById("painel-mensagens");
+  const tituloTopo = document.getElementById("titulo-topo");
+  const eyebrowTopo = document.getElementById("eyebrow-topo");
+
+  if (letraSelecionada === "INICIO") {
+    eyebrowTopo.textContent = "SEU VOCABULÁRIO";
+    tituloTopo.textContent = nomeDoAlunoAtual || "Olá!";
+    painelMensagens.classList.remove("forcar-oculto");
+  } else {
+    eyebrowTopo.textContent = "VOCABULÁRIO";
+    tituloTopo.textContent = `Palavras aprendidas com a inicial "${letraSelecionada}"`;
+    painelMensagens.classList.add("forcar-oculto");
+  }
+  renderizarPalavras();
+}
+
 function renderizarPalavras() {
-  const lista = letraSelecionada === "TODAS"
+  const lista = letraSelecionada === "INICIO"
     ? cacheDePalavras
     : cacheDePalavras.filter((p) => p.palavraEn[0].toUpperCase() === letraSelecionada);
 
@@ -139,7 +158,7 @@ function carregarMensagensDoProfessor(uid) {
         const data = m.criadoEm ? m.criadoEm.toDate().toLocaleDateString("pt-BR") : "";
         const div = document.createElement("div");
         div.className = "mensagem-item";
-        div.innerHTML = `${m.texto}<span class="data-msg">${data}</span>`;
+        div.innerHTML = `${m.texto}<br><span class="data-msg">${data}</span>`;
         container.appendChild(div);
       });
     });
