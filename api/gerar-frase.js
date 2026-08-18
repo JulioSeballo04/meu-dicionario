@@ -34,7 +34,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const prompt = `Crie UMA frase curta e simples em inglês (nível iniciante/intermediário) usando a palavra "${palavra}"${traducao ? ` (que significa "${traducao}" em português)` : ""}. Responda APENAS com a frase em inglês, sem aspas, sem explicações, sem tradução.`;
+    const prompt = `Crie exatamente 5 frases curtas e simples em inglês (nível iniciante/intermediário), cada uma usando a palavra "${palavra}"${traducao ? ` (que significa "${traducao}" em português)` : ""}. Responda APENAS com as 5 frases, uma por linha, sem numeração, sem aspas, sem explicações, sem tradução.`;
 
     const resposta = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`,
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 60 }
+          generationConfig: { maxOutputTokens: 220 }
         })
       }
     );
@@ -52,16 +52,23 @@ export default async function handler(req, res) {
 
     if (!resposta.ok) {
       console.error("Erro da API do Gemini:", dados);
-      return res.status(200).json({ frase: null, aviso: dados?.error?.message || "Erro ao consultar a IA." });
+      return res.status(200).json({ frases: [], aviso: dados?.error?.message || "Erro ao consultar a IA." });
     }
 
-    const frase = dados?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    const texto = dados?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
-    if (!frase) {
-      return res.status(200).json({ frase: null, aviso: "IA não retornou uma frase desta vez." });
+    if (!texto) {
+      return res.status(200).json({ frases: [], aviso: "IA não retornou frases desta vez." });
     }
 
-    return res.status(200).json({ frase: frase.replace(/^"|"$/g, "") });
+    // Quebra a resposta em linhas, remove numeração/traços/aspas que a IA às vezes adiciona
+    const frases = texto
+      .split("\n")
+      .map((linha) => linha.replace(/^[\s\-•\d.)]+/, "").replace(/^"|"$/g, "").trim())
+      .filter((linha) => linha.length > 0)
+      .slice(0, 5);
+
+    return res.status(200).json({ frases });
   } catch (erro) {
     console.error(erro);
     return res.status(500).json({ erro: "Falha ao gerar frase de exemplo." });
