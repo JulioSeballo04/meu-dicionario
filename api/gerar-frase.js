@@ -36,19 +36,28 @@ export default async function handler(req, res) {
   try {
     const prompt = `Crie exatamente 5 frases curtas e simples em inglês (nível iniciante/intermediário), cada uma usando a palavra "${palavra}"${traducao ? ` (que significa "${traducao}" em português)` : ""}. Responda APENAS com as 5 frases, uma por linha, sem numeração, sem aspas, sem explicações, sem tradução.`;
 
-    const resposta = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 220 }
-        })
-      }
-    );
+    // Tenta o modelo principal; se estiver sobrecarregado (erro 503), tenta um modelo alternativo
+    const modelos = ["gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-2.5-flash-lite"];
+    let dados, resposta;
 
-    const dados = await resposta.json();
+    for (const modelo of modelos) {
+      resposta = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 220 }
+          })
+        }
+      );
+      dados = await resposta.json();
+
+      if (resposta.ok) break; // deu certo, para de tentar outros modelos
+      if (resposta.status !== 503) break; // erro diferente de sobrecarga, não adianta tentar outro modelo
+      console.warn(`Modelo ${modelo} sobrecarregado, tentando o próximo...`);
+    }
 
     if (!resposta.ok) {
       console.error("Erro da API do Gemini:", dados);
