@@ -28,7 +28,7 @@
       <div id="lista-mensagens"></div>
     </div>
 
-    <form class="formulario-palavra" onsubmit="event.preventDefault(); adicionarPalavra(inputPalavraEn.value, inputPalavraPt.value);">
+    <form class="formulario-palavra" onsubmit="event.preventDefault(); adicionarPalavra(document.getElementById('input-palavra-en').value, document.getElementById('input-palavra-pt').value);">
       <input type="text" id="input-palavra-en" placeholder="Palavra em inglês (ex: apple)" required>
       <input type="text" id="input-palavra-pt" placeholder="Tradução (ex: maçã)" required>
       <button type="submit" class="btn btn-primario">Adicionar</button>
