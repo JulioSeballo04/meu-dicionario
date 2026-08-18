@@ -27,4 +27,4 @@ const db = firebase.firestore();
 // Endereço da sua function no Vercel que gera as frases de exemplo.
 // Depois de fazer o deploy no Vercel, troque pela URL real, ex:
 // "https://meu-dicionario.vercel.app/api/gerar-frase"
-const AI_ENDPOINT = "https://SEU-PROJETO.vercel.app/api/gerar-frase";
+const AI_ENDPOINT = "https://meu-dicionario.vercel.app/api/gerar-frase";
