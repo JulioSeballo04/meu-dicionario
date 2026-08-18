@@ -37,18 +37,24 @@ export default async function handler(req, res) {
     const prompt = `Crie UMA frase curta e simples em inglês (nível iniciante/intermediário) usando a palavra "${palavra}"${traducao ? ` (que significa "${traducao}" em português)` : ""}. Responda APENAS com a frase em inglês, sem aspas, sem explicações, sem tradução.`;
 
     const resposta = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.8, maxOutputTokens: 60 }
+          generationConfig: { maxOutputTokens: 60 }
         })
       }
     );
 
     const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      console.error("Erro da API do Gemini:", dados);
+      return res.status(200).json({ frase: null, aviso: dados?.error?.message || "Erro ao consultar a IA." });
+    }
+
     const frase = dados?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!frase) {
