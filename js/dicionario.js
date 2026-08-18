@@ -88,11 +88,16 @@ function renderizarPalavras() {
   lista.forEach((p) => {
     const cartao = document.createElement("div");
     cartao.className = "cartao-palavra";
+
+    const frases = p.frasesExemplo && p.frasesExemplo.length > 0
+      ? p.frasesExemplo.map((f) => `<div class="frase-exemplo">"${f}"</div>`).join("")
+      : `<div class="frase-exemplo">Gerando frases de exemplo...</div>`;
+
     cartao.innerHTML = `
       <button class="remover" title="Remover" onclick="removerPalavra('${p.id}')">✕</button>
       <div class="palavra-en">${p.palavraEn}</div>
       <div class="palavra-pt">${p.traducaoPt}</div>
-      ${p.fraseExemplo ? `<div class="frase-exemplo">"${p.fraseExemplo}"</div>` : `<div class="frase-exemplo">Gerando frase de exemplo...</div>`}
+      ${frases}
     `;
     grade.appendChild(cartao);
   });
@@ -109,7 +114,7 @@ async function adicionarPalavra(palavraEn, traducaoPt) {
   const ref = await db.collection("usuarios").doc(user.uid).collection("palavras").add({
     palavraEn: palavraEn.trim(),
     traducaoPt: traducaoPt.trim(),
-    fraseExemplo: "",
+    frasesExemplo: [],
     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
   });
 
@@ -117,7 +122,7 @@ async function adicionarPalavra(palavraEn, traducaoPt) {
   document.getElementById("input-palavra-pt").value = "";
   statusEl.textContent = "";
 
-  // Pede a frase de exemplo à function do Vercel (a chave da IA fica só lá no servidor)
+  // Pede as 5 frases de exemplo à function do Vercel (a chave da IA fica só lá no servidor)
   try {
     const resposta = await fetch(AI_ENDPOINT, {
       method: "POST",
@@ -125,12 +130,12 @@ async function adicionarPalavra(palavraEn, traducaoPt) {
       body: JSON.stringify({ palavra: palavraEn.trim(), traducao: traducaoPt.trim() })
     });
     const dados = await resposta.json();
-    if (dados.frase) {
+    if (dados.frases && dados.frases.length > 0) {
       await db.collection("usuarios").doc(user.uid).collection("palavras").doc(ref.id)
-        .update({ fraseExemplo: dados.frase });
+        .update({ frasesExemplo: dados.frases });
     }
   } catch (e) {
-    console.warn("Não foi possível gerar a frase de exemplo agora:", e);
+    console.warn("Não foi possível gerar as frases de exemplo agora:", e);
   }
 }
 
