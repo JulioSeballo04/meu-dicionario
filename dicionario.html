@@ -30,10 +30,11 @@
 
     <div id="painel-anotacoes" style="margin-bottom:2rem;">
       <h3 style="font-size:0.95rem;">Minhas anotações</h3>
-      <div class="caixa-mensagem">
-        <textarea id="input-anotacoes" placeholder="Adicione anotações ou regras gramaticais aprendidas" oninput="salvarAnotacoesComAtraso(this.value)"></textarea>
-        <p class="status-msg" id="status-anotacoes"></p>
+      <div class="caixa-mensagem" style="margin-bottom:1rem;">
+        <textarea id="input-anotacoes" placeholder="Adicione anotações ou regras gramaticais aprendidas"></textarea>
+        <button class="btn btn-primario" style="margin-top:0.6em;" onclick="adicionarAnotacao(document.getElementById('input-anotacoes').value)">Salvar anotação</button>
       </div>
+      <div id="lista-anotacoes"></div>
     </div>
 
     <form class="formulario-palavra" onsubmit="event.preventDefault(); adicionarPalavra(document.getElementById('input-palavra-en').value, document.getElementById('input-palavra-pt').value);">
