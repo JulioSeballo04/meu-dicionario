@@ -75,7 +75,32 @@ async function abrirDetalheAluno(alunoId, nomeAluno) {
   }
 
   carregarMensagensEnviadas(alunoId);
+  carregarAnotacoesDoAluno(alunoId);
   window.scrollTo({ top: painel.offsetTop - 20, behavior: "smooth" });
+}
+
+// Mostra as anotações pessoais do aluno (somente leitura — o professor não edita)
+function carregarAnotacoesDoAluno(alunoId) {
+  db.collection("usuarios").doc(alunoId).collection("anotacoes")
+    .orderBy("criadoEm", "desc")
+    .onSnapshot((snapshot) => {
+      const container = document.getElementById("lista-anotacoes-aluno");
+      const painel = document.getElementById("painel-anotacoes-aluno");
+      if (snapshot.empty) {
+        painel.classList.add("oculto");
+        return;
+      }
+      painel.classList.remove("oculto");
+      container.innerHTML = "";
+      snapshot.docs.forEach((doc) => {
+        const a = doc.data();
+        const div = document.createElement("div");
+        div.className = "cartao-anotacao";
+        div.style.paddingRight = "1em";
+        div.textContent = a.texto;
+        container.appendChild(div);
+      });
+    });
 }
 
 async function enviarMensagem(texto) {
