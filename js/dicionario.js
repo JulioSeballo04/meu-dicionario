@@ -105,11 +105,14 @@ function escutarPalavras(uid) {
     });
 }
 
-// Monta as abas do menu lateral: "Início" + A-Z, marcando quais letras têm palavras
+// Monta as abas do menu lateral: "Início" + A-Z, marcando quantas palavras tem cada letra
 function montarIndiceLetras() {
-  const letrasComPalavras = new Set(
-    cacheDePalavras.map((p) => p.palavraEn[0].toUpperCase())
-  );
+  const contagemPorLetra = {};
+  cacheDePalavras.forEach((p) => {
+    const letra = p.palavraEn[0].toUpperCase();
+    contagemPorLetra[letra] = (contagemPorLetra[letra] || 0) + 1;
+  });
+
   const container = document.getElementById("indice-letras-lista");
   container.innerHTML = "";
 
@@ -121,12 +124,16 @@ function montarIndiceLetras() {
   container.appendChild(inicio);
 
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach((letra) => {
+    const qtd = contagemPorLetra[letra] || 0;
     const btn = document.createElement("button");
     let classe = "letra-tab";
     if (letra === letraSelecionada) classe += " ativa";
-    if (letrasComPalavras.has(letra)) classe += " tem-palavras";
+    if (qtd > 0) classe += " tem-palavras";
     btn.className = classe;
-    btn.textContent = letra;
+    btn.title = qtd > 0 ? `${qtd} palavra(s)` : "Nenhuma palavra ainda";
+    btn.innerHTML = qtd > 0
+      ? `${letra}<span class="contagem-letra">${qtd}</span>`
+      : letra;
     btn.onclick = () => { letraSelecionada = letra; montarIndiceLetras(); renderizarTela(); };
     container.appendChild(btn);
   });
@@ -138,28 +145,35 @@ function renderizarTela() {
   const painelAnotacoes = document.getElementById("painel-anotacoes");
   const tituloTopo = document.getElementById("titulo-topo");
   const eyebrowTopo = document.getElementById("eyebrow-topo");
+  const contadorTotal = document.getElementById("contador-total");
 
   if (letraSelecionada === "INICIO") {
     eyebrowTopo.textContent = "SEU VOCABULÁRIO";
     tituloTopo.textContent = nomeDoAlunoAtual || "Olá!";
     painelMensagens.classList.remove("forcar-oculto");
     painelAnotacoes.classList.remove("forcar-oculto");
+    contadorTotal.classList.remove("forcar-oculto");
+    contadorTotal.textContent = cacheDePalavras.length === 1
+      ? "1 palavra aprendida"
+      : `${cacheDePalavras.length} palavras aprendidas`;
   } else {
     eyebrowTopo.textContent = "VOCABULÁRIO";
     tituloTopo.textContent = `Palavras aprendidas com a inicial "${letraSelecionada}"`;
     painelMensagens.classList.add("forcar-oculto");
     painelAnotacoes.classList.add("forcar-oculto");
+    contadorTotal.classList.add("forcar-oculto");
   }
   renderizarPalavras();
 }
 
 function renderizarPalavras() {
-  const lista = letraSelecionada === "INICIO"
-    ? cacheDePalavras
-    : cacheDePalavras.filter((p) => p.palavraEn[0].toUpperCase() === letraSelecionada);
-
   const grade = document.getElementById("grade-cartoes");
   grade.innerHTML = "";
+
+  // Na tela Início não mostramos a lista de palavras — só nas telas de cada letra
+  if (letraSelecionada === "INICIO") return;
+
+  const lista = cacheDePalavras.filter((p) => p.palavraEn[0].toUpperCase() === letraSelecionada);
 
   if (lista.length === 0) {
     grade.innerHTML = `<p class="vazio">Nenhuma palavra aqui ainda. Adicione uma acima!</p>`;
@@ -171,7 +185,7 @@ function renderizarPalavras() {
     cartao.className = "cartao-palavra";
 
     const frases = p.frasesExemplo && p.frasesExemplo.length > 0
-      ? p.frasesExemplo.map((f) => `<div class="frase-exemplo">"${f}"</div>`).join("")
+      ? p.frasesExemplo.map((f) => `<div class="frase-exemplo">"${f.en}"${f.pt ? `<br><span class="frase-traducao">${f.pt}</span>` : ""}</div>`).join("")
       : `<div class="frase-exemplo">Gerando frases de exemplo...</div>`;
 
     cartao.innerHTML = `
