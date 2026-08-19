@@ -5,6 +5,7 @@
 let letraSelecionada = "INICIO";
 let cacheDePalavras = [];
 let nomeDoAlunoAtual = "";
+let timeoutAnotacoes = null;
 
 exigirLogin("aluno");
 
@@ -12,9 +13,24 @@ auth.onAuthStateChanged(async (user) => {
   if (!user) return;
   const perfil = await db.collection("usuarios").doc(user.uid).get();
   nomeDoAlunoAtual = perfil.data().nome;
+  document.getElementById("input-anotacoes").value = perfil.data().anotacoes || "";
   carregarMensagensDoProfessor(user.uid);
   escutarPalavras(user.uid);
 });
+
+// Salva as anotações do aluno, com um pequeno atraso para não gravar a cada tecla digitada
+function salvarAnotacoesComAtraso(texto) {
+  const statusEl = document.getElementById("status-anotacoes");
+  statusEl.textContent = "Salvando...";
+  clearTimeout(timeoutAnotacoes);
+  timeoutAnotacoes = setTimeout(async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    await db.collection("usuarios").doc(user.uid).update({ anotacoes: texto });
+    statusEl.textContent = "Salvo!";
+    setTimeout(() => (statusEl.textContent = ""), 1500);
+  }, 800);
+}
 
 // Escuta em tempo real a coleção de palavras do aluno logado
 function escutarPalavras(uid) {
@@ -57,6 +73,7 @@ function montarIndiceLetras() {
 // Decide o que mostrar no topo e no corpo da página, dependendo da tela ativa
 function renderizarTela() {
   const painelMensagens = document.getElementById("painel-mensagens");
+  const painelAnotacoes = document.getElementById("painel-anotacoes");
   const tituloTopo = document.getElementById("titulo-topo");
   const eyebrowTopo = document.getElementById("eyebrow-topo");
 
@@ -64,10 +81,12 @@ function renderizarTela() {
     eyebrowTopo.textContent = "SEU VOCABULÁRIO";
     tituloTopo.textContent = nomeDoAlunoAtual || "Olá!";
     painelMensagens.classList.remove("forcar-oculto");
+    painelAnotacoes.classList.remove("forcar-oculto");
   } else {
     eyebrowTopo.textContent = "VOCABULÁRIO";
     tituloTopo.textContent = `Palavras aprendidas com a inicial "${letraSelecionada}"`;
     painelMensagens.classList.add("forcar-oculto");
+    painelAnotacoes.classList.add("forcar-oculto");
   }
   renderizarPalavras();
 }
