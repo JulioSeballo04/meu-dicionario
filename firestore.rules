@@ -23,7 +23,7 @@ service cloud.firestore {
         allow write: if request.auth != null && request.auth.uid == userId;
       }
 
-      // Mensagens: o aluno só pode LER. Só o professor vinculado pode ESCREVER.
+      // Mensagens: o aluno só pode LER. Só o professor vinculado pode ESCREVER (inclui editar/excluir).
       match /mensagens/{mensagemId} {
         allow read: if request.auth != null &&
           (request.auth.uid == userId || ehProfessorDoAluno(userId));
@@ -35,6 +35,18 @@ service cloud.firestore {
         allow read: if request.auth != null &&
           (request.auth.uid == userId || ehProfessorDoAluno(userId));
         allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Relatório de aulas: o "diário de bordo" do professor sobre o que foi trabalhado
+      // em cada aula. É registro do professor, não do aluno — só ele lê e escreve.
+      match /relatorios/{relatorioId} {
+        allow read, write: if request.auth != null && ehProfessorDoAluno(userId);
+      }
+
+      // Controle de "última visualização": usado só pelo próprio professor, para saber
+      // quais alunos/letras têm palavras novas desde a última vez que ele abriu o bloco.
+      match /visualizacoes/{alunoId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
   }
