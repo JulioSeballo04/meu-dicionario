@@ -328,24 +328,127 @@ label {
   flex-direction: column;
   gap: 0.6rem;
 }
-.item-aluno {
+
+/* Cada aluno é um bloco de acordeão: cabeçalho clicável + detalhe que expande */
+.aluno-bloco {
   background: var(--paper-card);
   border: 1px solid var(--line);
   border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.12s ease;
+}
+.aluno-bloco:has(.item-aluno:hover) { border-color: var(--sage); }
+
+.item-aluno {
   padding: 1rem 1.2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
 }
-.item-aluno:hover { border-color: var(--sage); }
 .item-aluno .nome-aluno { font-weight: 600; }
+.item-aluno .cabecalho-direita { display: flex; align-items: center; gap: 0.8em; }
 .item-aluno .contagem { font-family: var(--font-mono); font-size: 0.8rem; color: var(--sage); }
+.item-aluno .seta-expandir {
+  display: inline-block;
+  color: var(--ink-soft);
+  transition: transform 0.15s ease;
+}
+.item-aluno.aberto .seta-expandir { transform: rotate(180deg); }
 
-.painel-aluno-detalhe {
+/* Bolinha de "tem palavra nova" — no nome do aluno e nas letras do abecedário */
+.badge-novidade {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+
+.detalhe-aluno-inline {
+  padding: 0 1.2rem 1.4rem;
   border-top: 1px solid var(--line);
-  margin-top: 1.6rem;
-  padding-top: 1.6rem;
+}
+
+/* Abas internas do bloco do aluno: Vocabulário / Recados / Relatório de aulas */
+.abas-detalhe {
+  display: flex;
+  gap: 1em;
+  margin: 1rem 0 1.2rem;
+  border-bottom: 1.5px solid var(--line);
+}
+.aba-detalhe {
+  background: none;
+  border: none;
+  padding: 0.5em 0.1em;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+}
+.aba-detalhe.ativa { color: var(--ink); border-color: var(--amber); }
+
+/* Abecedário mini, dentro da aba Vocabulário de cada aluno */
+.indice-letras-mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 1.2rem;
+}
+.letra-tab-mini {
+  position: relative;
+  min-width: 32px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1.5px solid var(--line);
+  background: var(--paper);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+.letra-tab-mini.ativa { background: var(--sage); color: #fff; border-color: var(--sage); }
+.letra-tab-mini.vazia { opacity: 0.35; cursor: default; }
+.letra-tab-mini .contagem-letra-mini { font-size: 0.62rem; margin-left: 2px; opacity: 0.85; }
+.letra-tab-mini .badge-novidade-letra {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+/* Ações (editar/excluir) nos recados e no relatório de aulas do professor */
+.acoes-msg {
+  display: flex;
+  gap: 0.7em;
+  margin-bottom: 0.4em;
+}
+.acoes-msg button {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.6;
+  padding: 0;
+}
+.acoes-msg button:hover { opacity: 1; color: var(--sage); }
+.acoes-msg button.excluir:hover { color: #B54A3C; }
+.mensagem-item textarea {
+  width: 100%;
+  min-height: 70px;
+  font-family: var(--font-body);
+  padding: 0.6em;
+  border: 1.5px solid var(--sage);
+  border-radius: 6px;
+  resize: vertical;
+  margin-bottom: 0.5em;
 }
 .caixa-mensagem textarea {
   width: 100%;
