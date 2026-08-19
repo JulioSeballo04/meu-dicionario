@@ -45,7 +45,11 @@ a { color: var(--sage); }
 button {
   font-family: var(--font-body);
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
+button:disabled { cursor: default; }
 
 .btn {
   border: none;
@@ -380,6 +384,9 @@ label {
   border-bottom: 1.5px solid var(--line);
 }
 .aba-detalhe {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   background: none;
   border: none;
   padding: 0.5em 0.1em;
@@ -395,32 +402,68 @@ label {
 .indice-letras-mini {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-  margin-bottom: 1.2rem;
+  gap: 7px;
+  margin-bottom: 1.4rem;
 }
 .letra-tab-mini {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   position: relative;
-  min-width: 32px;
-  height: 30px;
-  padding: 0 6px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   border: 1.5px solid var(--line);
-  background: var(--paper);
-  border-radius: 6px;
+  background: var(--paper-card);
+  border-radius: 8px;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--ink-soft);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 }
-.letra-tab-mini.ativa { background: var(--sage); color: #fff; border-color: var(--sage); }
-.letra-tab-mini.vazia { opacity: 0.35; cursor: default; }
-.letra-tab-mini .contagem-letra-mini { font-size: 0.62rem; margin-left: 2px; opacity: 0.85; }
+.letra-tab-mini:hover:not(.vazia):not(.ativa) {
+  border-color: var(--sage);
+  color: var(--sage);
+}
+.letra-tab-mini.ativa {
+  background: var(--sage);
+  color: #fff;
+  border-color: var(--sage);
+}
+.letra-tab-mini.vazia {
+  background: var(--paper);
+  color: var(--line);
+  border-color: var(--line);
+  cursor: default;
+}
+.letra-tab-mini .contagem-letra-mini {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  background: var(--amber);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 7px;
+  min-width: 14px;
+  box-shadow: 0 0 0 2px var(--paper-card);
+}
 .letra-tab-mini .badge-novidade-letra {
   position: absolute;
-  top: -3px;
-  right: -3px;
-  width: 7px;
-  height: 7px;
+  top: -4px;
+  left: -4px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: var(--amber);
+  box-shadow: 0 0 0 2px var(--paper-card);
 }
 
 /* Ações (editar/excluir) nos recados e no relatório de aulas do professor */
