@@ -30,9 +30,11 @@ service cloud.firestore {
         allow create, update, delete: if request.auth != null && ehProfessorDoAluno(userId);
       }
 
-      // Anotações pessoais: só o próprio aluno pode ler/escrever (privadas, nem o professor vê).
+      // Anotações pessoais: o aluno lê/escreve. O professor vinculado só pode LER (acompanhamento).
       match /anotacoes/{anotacaoId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read: if request.auth != null &&
+          (request.auth.uid == userId || ehProfessorDoAluno(userId));
+        allow write: if request.auth != null && request.auth.uid == userId;
       }
     }
   }
