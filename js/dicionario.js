@@ -4,8 +4,9 @@
 
 let letraSelecionada = "INICIO";
 let cacheDePalavras = [];
+let cacheDeAnotacoes = [];
 let nomeDoAlunoAtual = "";
-let timeoutAnotacoes = null;
+let anotacaoEmEdicaoId = null;
 
 exigirLogin("aluno");
 
@@ -13,23 +14,84 @@ auth.onAuthStateChanged(async (user) => {
   if (!user) return;
   const perfil = await db.collection("usuarios").doc(user.uid).get();
   nomeDoAlunoAtual = perfil.data().nome;
-  document.getElementById("input-anotacoes").value = perfil.data().anotacoes || "";
   carregarMensagensDoProfessor(user.uid);
+  escutarAnotacoes(user.uid);
   escutarPalavras(user.uid);
 });
 
-// Salva as anotações do aluno, com um pequeno atraso para não gravar a cada tecla digitada
-function salvarAnotacoesComAtraso(texto) {
-  const statusEl = document.getElementById("status-anotacoes");
-  statusEl.textContent = "Salvando...";
-  clearTimeout(timeoutAnotacoes);
-  timeoutAnotacoes = setTimeout(async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-    await db.collection("usuarios").doc(user.uid).update({ anotacoes: texto });
-    statusEl.textContent = "Salvo!";
-    setTimeout(() => (statusEl.textContent = ""), 1500);
-  }, 800);
+// Escuta em tempo real as anotações pessoais do aluno (um único listener; re-renderiza ao editar)
+function escutarAnotacoes(uid) {
+  db.collection("usuarios").doc(uid).collection("anotacoes")
+    .orderBy("criadoEm", "desc")
+    .onSnapshot((snapshot) => {
+      cacheDeAnotacoes = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      renderizarAnotacoes();
+    });
+}
+
+function renderizarAnotacoes() {
+  const container = document.getElementById("lista-anotacoes");
+  container.innerHTML = "";
+  cacheDeAnotacoes.forEach((a) => {
+    const cartao = document.createElement("div");
+    cartao.className = "cartao-anotacao";
+
+    if (anotacaoEmEdicaoId === a.id) {
+      cartao.innerHTML = `
+        <div class="edicao-anotacao">
+          <textarea id="edicao-texto-${a.id}">${a.texto}</textarea>
+          <button class="btn btn-primario" style="padding:0.4em 1em; font-size:0.85rem;" onclick="salvarEdicaoAnotacao('${a.id}')">Salvar</button>
+          <button class="btn btn-secundario" style="padding:0.4em 1em; font-size:0.85rem;" onclick="cancelarEdicaoAnotacao()">Cancelar</button>
+        </div>
+      `;
+    } else {
+      cartao.innerHTML = `
+        <div class="acoes-anotacao">
+          <button onclick="editarAnotacao('${a.id}')">Editar</button>
+          <button class="excluir" onclick="excluirAnotacao('${a.id}')">Excluir</button>
+        </div>
+        ${a.texto}
+      `;
+    }
+    container.appendChild(cartao);
+  });
+}
+
+// Adiciona uma nova anotação
+async function adicionarAnotacao(texto) {
+  const user = auth.currentUser;
+  if (!user || !texto.trim()) return;
+  await db.collection("usuarios").doc(user.uid).collection("anotacoes").add({
+    texto: texto.trim(),
+    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById("input-anotacoes").value = "";
+}
+
+function editarAnotacao(id) {
+  anotacaoEmEdicaoId = id;
+  renderizarAnotacoes();
+}
+
+function cancelarEdicaoAnotacao() {
+  anotacaoEmEdicaoId = null;
+  renderizarAnotacoes();
+}
+
+async function salvarEdicaoAnotacao(id) {
+  const user = auth.currentUser;
+  if (!user) return;
+  const novoTexto = document.getElementById(`edicao-texto-${id}`).value.trim();
+  if (!novoTexto) return;
+  await db.collection("usuarios").doc(user.uid).collection("anotacoes").doc(id)
+    .update({ texto: novoTexto });
+  anotacaoEmEdicaoId = null;
+}
+
+async function excluirAnotacao(id) {
+  const user = auth.currentUser;
+  if (!user) return;
+  await db.collection("usuarios").doc(user.uid).collection("anotacoes").doc(id).delete();
 }
 
 // Escuta em tempo real a coleção de palavras do aluno logado
