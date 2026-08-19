@@ -185,7 +185,12 @@ function renderizarPalavras() {
     cartao.className = "cartao-palavra";
 
     const frases = p.frasesExemplo && p.frasesExemplo.length > 0
-      ? p.frasesExemplo.map((f) => `<div class="frase-exemplo">"${f.en}"${f.pt ? `<br><span class="frase-traducao">${f.pt}</span>` : ""}</div>`).join("")
+      ? p.frasesExemplo.map((f) => {
+          // Compatibilidade: frases antigas eram só texto (string); as novas são {en, pt}
+          const en = typeof f === "string" ? f : f.en;
+          const pt = typeof f === "string" ? "" : f.pt;
+          return `<div class="frase-exemplo">"${en}"${pt ? `<br><span class="frase-traducao">${pt}</span>` : ""}</div>`;
+        }).join("")
       : `<div class="frase-exemplo">Gerando frases de exemplo...</div>`;
 
     cartao.innerHTML = `
@@ -204,6 +209,17 @@ async function adicionarPalavra(palavraEn, traducaoPt) {
   if (!user || !palavraEn.trim() || !traducaoPt.trim()) return;
 
   const statusEl = document.getElementById("status-palavra");
+
+  // Verifica se essa palavra já foi adicionada antes (ignorando maiúsculas/minúsculas e espaços)
+  const jaExiste = cacheDePalavras.some(
+    (p) => p.palavraEn.trim().toLowerCase() === palavraEn.trim().toLowerCase()
+  );
+  if (jaExiste) {
+    statusEl.textContent = `"${palavraEn.trim()}" já está no seu vocabulário.`;
+    setTimeout(() => (statusEl.textContent = ""), 2500);
+    return;
+  }
+
   statusEl.textContent = "Salvando...";
 
   const ref = await db.collection("usuarios").doc(user.uid).collection("palavras").add({
