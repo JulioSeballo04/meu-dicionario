@@ -199,6 +199,32 @@ label {
   background: var(--amber);
   margin: 3px auto 0;
 }
+.letra-tab {
+  position: relative;
+}
+.letra-tab .contagem-letra {
+  position: absolute;
+  top: -2px;
+  right: 2px;
+  background: var(--amber);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1px 3px;
+  border-radius: 6px;
+  min-width: 12px;
+}
+.letra-tab.tem-palavras::after { display: none; }
+
+.contador-total {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--sage);
+  margin-top: 0.4em;
+  font-weight: 600;
+}
 
 .conteudo {
   padding: 2.4rem 3rem;
@@ -260,6 +286,11 @@ label {
   border-top: 1px dashed var(--line);
   padding-top: 0.6em;
   margin-top: 0.4em;
+}
+.cartao-palavra .frase-exemplo .frase-traducao {
+  font-style: normal;
+  font-size: 0.78rem;
+  color: var(--sage);
 }
 .cartao-palavra .remover {
   position: absolute;
