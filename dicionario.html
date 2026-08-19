@@ -29,6 +29,13 @@
       <div id="lista-mensagens"></div>
     </div>
 
+    <form class="formulario-palavra" onsubmit="event.preventDefault(); adicionarPalavra(document.getElementById('input-palavra-en').value, document.getElementById('input-palavra-pt').value);">
+      <input type="text" id="input-palavra-en" placeholder="Palavra em inglês (ex: apple)" required>
+      <input type="text" id="input-palavra-pt" placeholder="Tradução (ex: maçã)" required>
+      <button type="submit" class="btn btn-primario">Adicionar</button>
+    </form>
+    <p class="status-msg" id="status-palavra"></p>
+
     <div id="painel-anotacoes" style="margin-bottom:2rem;">
       <h3 style="font-size:0.95rem;">Minhas anotações</h3>
       <div class="caixa-mensagem" style="margin-bottom:1rem;">
@@ -37,13 +44,6 @@
       </div>
       <div id="lista-anotacoes"></div>
     </div>
-
-    <form class="formulario-palavra" onsubmit="event.preventDefault(); adicionarPalavra(document.getElementById('input-palavra-en').value, document.getElementById('input-palavra-pt').value);">
-      <input type="text" id="input-palavra-en" placeholder="Palavra em inglês (ex: apple)" required>
-      <input type="text" id="input-palavra-pt" placeholder="Tradução (ex: maçã)" required>
-      <button type="submit" class="btn btn-primario">Adicionar</button>
-    </form>
-    <p class="status-msg" id="status-palavra"></p>
 
     <div class="grade-cartoes" id="grade-cartoes"></div>
   </main>
