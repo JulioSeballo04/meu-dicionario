@@ -34,28 +34,58 @@ export default async function handler(req, res) {
   }
 
   try {
-    const prompt = `Crie UMA frase curta e simples em inglês (nível iniciante/intermediário) usando a palavra "${palavra}"${traducao ? ` (que significa "${traducao}" em português)` : ""}. Responda APENAS com a frase em inglês, sem aspas, sem explicações, sem tradução.`;
+    const prompt = `Crie exatamente 5 frases curtas e simples em inglês (nível iniciante/intermediário), cada uma usando a palavra "${palavra}"${traducao ? ` (que significa "${traducao}" em português)` : ""}. Para cada frase, forneça também a tradução dela em português. Responda APENAS com as 5 linhas, uma por frase, no formato exato: frase em inglês | tradução em português. Sem numeração, sem aspas, sem explicações extras.`;
 
-    const resposta = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.8, maxOutputTokens: 60 }
-        })
-      }
-    );
+    // Tenta o modelo principal; se estiver sobrecarregado (erro 503), tenta um modelo alternativo
+    const modelos = ["gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-2.5-flash-lite"];
+    let dados, resposta;
 
-    const dados = await resposta.json();
-    const frase = dados?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    for (const modelo of modelos) {
+      resposta = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 320 }
+          })
+        }
+      );
+      dados = await resposta.json();
 
-    if (!frase) {
-      return res.status(200).json({ frase: null, aviso: "IA não retornou uma frase desta vez." });
+      if (resposta.ok) break; // deu certo, para de tentar outros modelos
+      if (resposta.status !== 503) break; // erro diferente de sobrecarga, não adianta tentar outro modelo
+      console.warn(`Modelo ${modelo} sobrecarregado, tentando o próximo...`);
     }
 
-    return res.status(200).json({ frase: frase.replace(/^"|"$/g, "") });
+    if (!resposta.ok) {
+      console.error("Erro da API do Gemini:", dados);
+      return res.status(200).json({ frases: [], aviso: dados?.error?.message || "Erro ao consultar a IA." });
+    }
+
+    const texto = dados?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+    if (!texto) {
+      return res.status(200).json({ frases: [], aviso: "IA não retornou frases desta vez." });
+    }
+
+    // Quebra a resposta em linhas e separa frase/tradução pelo "|"
+    const frases = texto
+      .split("\n")
+      .map((linha) => linha.replace(/^[\s\-•\d.)]+/, "").trim())
+      .filter((linha) => linha.length > 0)
+      .map((linha) => {
+        const partes = linha.split("|");
+        return {
+          en: (partes[0] || "").replace(/^"|"$/g, "").trim(),
+          pt: (partes[1] || "").replace(/^"|"$/g, "").trim()
+        };
+      })
+      .filter((item) => item.en.length > 0)
+      .slice(0, 5);
+
+    return res.status(200).json({ frases });
   } catch (erro) {
     console.error(erro);
     return res.status(500).json({ erro: "Falha ao gerar frase de exemplo." });
