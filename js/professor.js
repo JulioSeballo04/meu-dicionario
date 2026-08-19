@@ -61,7 +61,11 @@ async function abrirDetalheAluno(alunoId, nomeAluno) {
     palavrasSnap.docs.forEach((doc) => {
       const p = doc.data();
       const frases = p.frasesExemplo && p.frasesExemplo.length > 0
-        ? p.frasesExemplo.map((f) => `<div class="frase-exemplo">"${f.en}"${f.pt ? `<br><span class="frase-traducao">${f.pt}</span>` : ""}</div>`).join("")
+        ? p.frasesExemplo.map((f) => {
+            const en = typeof f === "string" ? f : f.en;
+            const pt = typeof f === "string" ? "" : f.pt;
+            return `<div class="frase-exemplo">"${en}"${pt ? `<br><span class="frase-traducao">${pt}</span>` : ""}</div>`;
+          }).join("")
         : "";
       const cartao = document.createElement("div");
       cartao.className = "cartao-palavra";
