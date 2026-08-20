@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meu Dicionário</title>
+<script>
+  // Aplica o tema salvo antes da página desenhar, pra não piscar a cor padrão
+  (function () {
+    var tema = localStorage.getItem("temaEscolhido");
+    if (tema && tema !== "classico") document.documentElement.setAttribute("data-tema", tema);
+  })();
+</script>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
