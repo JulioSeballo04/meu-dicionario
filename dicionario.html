@@ -44,9 +44,12 @@
       <div id="lista-mensagens"></div>
     </div>
 
-    <form class="formulario-palavra" onsubmit="event.preventDefault(); adicionarPalavra(document.getElementById('input-palavra-en').value, document.getElementById('input-palavra-pt').value);">
-      <input type="text" id="input-palavra-en" placeholder="Palavra em inglês (ex: apple)" required>
-      <input type="text" id="input-palavra-pt" placeholder="Tradução (ex: maçã)" required>
+    <form class="formulario-palavra" onsubmit="event.preventDefault(); adicionarPalavra(document.getElementById('input-palavra-en').value, document.getElementById('input-palavra-pt').value, document.getElementById('input-palavra-nota').value); this.reset();">
+      <div class="linha-palavra">
+        <input type="text" id="input-palavra-en" placeholder="Palavra em inglês (ex: apple)" required>
+        <input type="text" id="input-palavra-pt" placeholder="Tradução (ex: maçã)" required>
+      </div>
+      <textarea id="input-palavra-nota" class="textarea-nota-palavra" placeholder="Anotação (opcional) — ex: quando usar, diferença de outra palavra, dica pra lembrar..."></textarea>
       <button type="submit" class="btn btn-primario">Adicionar</button>
     </form>
     <p class="status-msg" id="status-palavra"></p>
