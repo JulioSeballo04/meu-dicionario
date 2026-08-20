@@ -7,6 +7,7 @@ let cacheDePalavras = [];
 let cacheDeAnotacoes = [];
 let nomeDoAlunoAtual = "";
 let anotacaoEmEdicaoId = null;
+let notaPalavraEmEdicaoId = null;
 
 exigirLogin("aluno");
 
@@ -193,18 +194,71 @@ function renderizarPalavras() {
         }).join("")
       : `<div class="frase-exemplo">Gerando frases de exemplo...</div>`;
 
+    // Anotação pessoal da palavra: mostra/edita/adiciona (sempre opcional)
+    let blocoNota;
+    if (notaPalavraEmEdicaoId === p.id) {
+      blocoNota = `
+        <div class="edicao-nota-palavra">
+          <textarea id="edicao-nota-${p.id}" placeholder="Explicação, dica de uso, diferença de outra palavra...">${p.notaPessoal || ""}</textarea>
+          <div class="acoes-edicao-nota">
+            <button class="btn btn-primario" onclick="salvarNotaPalavra('${p.id}')">Salvar</button>
+            <button class="btn btn-secundario" onclick="cancelarEdicaoNotaPalavra()">Cancelar</button>
+          </div>
+        </div>
+      `;
+    } else if (p.notaPessoal) {
+      blocoNota = `
+        <div class="nota-palavra">
+          ${p.notaPessoal}
+          <div class="acoes-nota-palavra">
+            <button onclick="editarNotaPalavra('${p.id}')">Editar</button>
+            <button class="excluir" onclick="removerNotaPalavra('${p.id}')">Excluir</button>
+          </div>
+        </div>
+      `;
+    } else {
+      blocoNota = `<button class="btn-add-nota-palavra" onclick="editarNotaPalavra('${p.id}')">+ Adicionar anotação</button>`;
+    }
+
     cartao.innerHTML = `
       <button class="remover" title="Remover" onclick="removerPalavra('${p.id}')">✕</button>
       <div class="palavra-en">${p.palavraEn}</div>
       <div class="palavra-pt">${p.traducaoPt}</div>
       ${frases}
+      ${blocoNota}
     `;
     grade.appendChild(cartao);
   });
 }
 
+function editarNotaPalavra(id) {
+  notaPalavraEmEdicaoId = id;
+  renderizarPalavras();
+}
+
+function cancelarEdicaoNotaPalavra() {
+  notaPalavraEmEdicaoId = null;
+  renderizarPalavras();
+}
+
+async function salvarNotaPalavra(id) {
+  const user = auth.currentUser;
+  if (!user) return;
+  const texto = document.getElementById(`edicao-nota-${id}`).value.trim();
+  await db.collection("usuarios").doc(user.uid).collection("palavras").doc(id)
+    .update({ notaPessoal: texto });
+  notaPalavraEmEdicaoId = null;
+}
+
+async function removerNotaPalavra(id) {
+  const user = auth.currentUser;
+  if (!user) return;
+  await db.collection("usuarios").doc(user.uid).collection("palavras").doc(id)
+    .update({ notaPessoal: firebase.firestore.FieldValue.delete() });
+}
+
 // Adiciona uma nova palavra: salva no Firestore e pede a frase de exemplo à IA
-async function adicionarPalavra(palavraEn, traducaoPt) {
+async function adicionarPalavra(palavraEn, traducaoPt, notaPessoal) {
   const user = auth.currentUser;
   if (!user || !palavraEn.trim() || !traducaoPt.trim()) return;
 
@@ -222,15 +276,22 @@ async function adicionarPalavra(palavraEn, traducaoPt) {
 
   statusEl.textContent = "Salvando...";
 
-  const ref = await db.collection("usuarios").doc(user.uid).collection("palavras").add({
+  const dadosPalavra = {
     palavraEn: palavraEn.trim(),
     traducaoPt: traducaoPt.trim(),
     frasesExemplo: [],
     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-  });
+  };
+  // Anotação é opcional — só grava o campo se o usuário escreveu algo
+  if (notaPessoal && notaPessoal.trim()) {
+    dadosPalavra.notaPessoal = notaPessoal.trim();
+  }
+
+  const ref = await db.collection("usuarios").doc(user.uid).collection("palavras").add(dadosPalavra);
 
   document.getElementById("input-palavra-en").value = "";
   document.getElementById("input-palavra-pt").value = "";
+  document.getElementById("input-palavra-nota").value = "";
   statusEl.textContent = "";
 
   // Pede as 5 frases de exemplo à function do Vercel (a chave da IA fica só lá no servidor)
