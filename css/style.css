@@ -256,11 +256,34 @@ label {
 
 .formulario-palavra {
   display: flex;
+  flex-direction: column;
   gap: 0.7em;
   margin-bottom: 2rem;
+}
+.linha-palavra {
+  display: flex;
+  gap: 0.7em;
   flex-wrap: wrap;
 }
-.formulario-palavra input { flex: 1; min-width: 140px; }
+.linha-palavra input { flex: 1; min-width: 140px; }
+.textarea-nota-palavra {
+  width: 100%;
+  min-height: 60px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 0.7em 0.8em;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper-card);
+  color: var(--ink);
+  resize: vertical;
+}
+.textarea-nota-palavra:focus {
+  outline: 2px solid var(--amber);
+  outline-offset: 1px;
+  border-color: var(--amber);
+}
+.formulario-palavra .btn { align-self: flex-start; }
 
 .grade-cartoes {
   display: grid;
@@ -311,6 +334,68 @@ label {
   opacity: 0.4;
 }
 .cartao-palavra .remover:hover { opacity: 1; color: #B54A3C; }
+
+/* Anotação pessoal da palavra (opcional, explicação/dica de uso) */
+.nota-palavra {
+  font-size: 0.83rem;
+  color: var(--ink);
+  background: var(--amber-light);
+  border-left: 3px solid var(--amber);
+  border-radius: 0 6px 6px 0;
+  padding: 0.55em 0.7em;
+  margin-top: 0.7em;
+  white-space: pre-wrap;
+}
+.nota-palavra .acoes-nota-palavra {
+  display: flex;
+  gap: 0.7em;
+  margin-top: 0.4em;
+}
+.nota-palavra .acoes-nota-palavra button {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.6;
+  padding: 0;
+}
+.nota-palavra .acoes-nota-palavra button:hover { opacity: 1; color: var(--sage); }
+.nota-palavra .acoes-nota-palavra button.excluir:hover { color: #B54A3C; }
+
+.btn-add-nota-palavra {
+  display: inline-block;
+  background: none;
+  border: none;
+  color: var(--sage);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0;
+  margin-top: 0.7em;
+  opacity: 0.8;
+}
+.btn-add-nota-palavra:hover { opacity: 1; text-decoration: underline; }
+
+.edicao-nota-palavra { margin-top: 0.7em; }
+.edicao-nota-palavra textarea {
+  width: 100%;
+  min-height: 60px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 0.5em;
+  border: 1.5px solid var(--sage);
+  border-radius: 6px;
+  resize: vertical;
+}
+.edicao-nota-palavra .acoes-edicao-nota {
+  display: flex;
+  gap: 0.5em;
+  margin-top: 0.5em;
+}
+.edicao-nota-palavra .acoes-edicao-nota button {
+  padding: 0.35em 0.9em;
+  font-size: 0.78rem;
+}
 
 .vazio {
   color: var(--ink-soft);
