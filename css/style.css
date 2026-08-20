@@ -241,6 +241,11 @@ label {
   align-items: flex-start;
   margin-bottom: 2rem;
 }
+.acoes-topo {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+}
 .saudacao .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -562,4 +567,132 @@ label {
   .app-shell { grid-template-columns: 60px 1fr; }
   .conteudo { padding: 1.6rem 1.2rem; }
   .letra-tab { width: 24px; font-size: 0.7rem; }
+}
+
+/* ============================================================
+   SELETOR DE TEMA — bolinha de cores no canto superior direito
+   ============================================================ */
+.seletor-tema { position: relative; }
+
+.btn-tema {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: var(--paper-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: border-color 0.12s ease, transform 0.08s ease;
+}
+.btn-tema:hover { border-color: var(--sage); transform: translateY(-1px); }
+
+.ponto-tema-atual {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: block;
+}
+
+.menu-tema {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.5em;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.14);
+  min-width: 200px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.opcao-tema {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  background: none;
+  border: none;
+  padding: 0.55em 0.6em;
+  border-radius: 7px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: left;
+  width: 100%;
+}
+.opcao-tema:hover { background: var(--sage-light); }
+.opcao-tema.ativa { background: var(--amber-light); }
+
+.amostra-tema {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.12);
+}
+
+.opcao-tema .marca-ativa {
+  margin-left: auto;
+  color: var(--amber);
+  font-size: 0.9rem;
+}
+
+/* ---------- Paleta 1: Fichário Clássico (padrão, já é a base em :root) ---------- */
+
+/* ---------- Paleta 2: Oceano — azul aço + laranja queimado ---------- */
+html[data-tema="oceano"] {
+  --paper: #F1F6F8;
+  --paper-card: #FFFFFF;
+  --ink: #1B2B36;
+  --ink-soft: #4C6270;
+  --sage: #2C6E8E;
+  --sage-light: #DCEAF0;
+  --amber: #E0733F;
+  --amber-light: #FBE4D6;
+  --line: #D3E0E6;
+}
+
+/* ---------- Paleta 3: Lavanda — roxo suave + rosa empoeirado ---------- */
+html[data-tema="lavanda"] {
+  --paper: #FBF8FC;
+  --paper-card: #FFFFFF;
+  --ink: #2E2438;
+  --ink-soft: #6B5D78;
+  --sage: #7C6A9C;
+  --sage-light: #EDE7F5;
+  --amber: #D68FA0;
+  --amber-light: #FBE9EE;
+  --line: #E4DAEF;
+}
+
+/* ---------- Paleta 4: Terracota — oliva + terracota ---------- */
+html[data-tema="terracota"] {
+  --paper: #FBF3EC;
+  --paper-card: #FFFFFF;
+  --ink: #3A2A1E;
+  --ink-soft: #6B5645;
+  --sage: #6E7F52;
+  --sage-light: #E8ECDD;
+  --amber: #A9542F;
+  --amber-light: #F1DCCB;
+  --line: #E3D3C2;
+}
+
+/* ---------- Paleta 5: Noturno — modo escuro, azul + dourado ---------- */
+html[data-tema="noturno"] {
+  --paper: #14181D;
+  --paper-card: #1D242B;
+  --ink: #EDEFF2;
+  --ink-soft: #9AA7B2;
+  --sage: #7FA6C9;
+  --sage-light: #24313D;
+  --amber: #E0B24C;
+  --amber-light: #3A331C;
+  --line: #2B333B;
 }
