@@ -34,7 +34,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const prompt = `Crie exatamente 5 frases curtas e simples em inglês (nível iniciante/intermediário), cada uma usando a palavra "${palavra}"${traducao ? ` (que significa "${traducao}" em português)` : ""}. Responda APENAS com as 5 frases, uma por linha, sem numeração, sem aspas, sem explicações, sem tradução.`;
+    const prompt = `Crie exatamente 5 frases curtas e simples em inglês (nível iniciante/intermediário), cada uma usando a palavra "${palavra}"${traducao ? ` (que significa "${traducao}" em português)` : ""}. Para cada frase, forneça também a tradução dela em português. Responda APENAS com as 5 linhas, uma por frase, no formato exato: frase em inglês | tradução em português. Sem numeração, sem aspas, sem explicações extras.`;
 
     // Tenta o modelo principal; se estiver sobrecarregado (erro 503), tenta um modelo alternativo
     const modelos = ["gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-2.5-flash-lite"];
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: 220 }
+            generationConfig: { maxOutputTokens: 320 }
           })
         }
       );
@@ -70,11 +70,19 @@ export default async function handler(req, res) {
       return res.status(200).json({ frases: [], aviso: "IA não retornou frases desta vez." });
     }
 
-    // Quebra a resposta em linhas, remove numeração/traços/aspas que a IA às vezes adiciona
+    // Quebra a resposta em linhas e separa frase/tradução pelo "|"
     const frases = texto
       .split("\n")
-      .map((linha) => linha.replace(/^[\s\-•\d.)]+/, "").replace(/^"|"$/g, "").trim())
+      .map((linha) => linha.replace(/^[\s\-•\d.)]+/, "").trim())
       .filter((linha) => linha.length > 0)
+      .map((linha) => {
+        const partes = linha.split("|");
+        return {
+          en: (partes[0] || "").replace(/^"|"$/g, "").trim(),
+          pt: (partes[1] || "").replace(/^"|"$/g, "").trim()
+        };
+      })
+      .filter((item) => item.en.length > 0)
       .slice(0, 5);
 
     return res.status(200).json({ frases });
