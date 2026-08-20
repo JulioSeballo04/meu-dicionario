@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meu Dicionário — Dicionário</title>
+<script>
+  // Aplica o tema salvo antes da página desenhar, pra não piscar a cor padrão
+  (function () {
+    var tema = localStorage.getItem("temaEscolhido");
+    if (tema && tema !== "classico") document.documentElement.setAttribute("data-tema", tema);
+  })();
+</script>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -21,7 +28,15 @@
         <h1 id="titulo-topo">Olá!</h1>
         <div class="contador-total" id="contador-total"></div>
       </div>
-      <button class="btn btn-secundario" onclick="sair()">Sair</button>
+      <div class="acoes-topo">
+        <div class="seletor-tema" id="seletor-tema">
+          <button class="btn-tema" type="button" title="Mudar cores do app" onclick="alternarMenuTema()">
+            <span class="ponto-tema-atual" id="ponto-tema-atual"></span>
+          </button>
+          <div class="menu-tema oculto" id="menu-tema"></div>
+        </div>
+        <button class="btn btn-secundario" onclick="sair()">Sair</button>
+      </div>
     </div>
 
     <div id="painel-mensagens" class="oculto" style="margin-bottom:2rem;">
@@ -54,6 +69,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/tema.js"></script>
 <script src="js/dicionario.js"></script>
 </body>
 </html>
